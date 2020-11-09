@@ -1,6 +1,3 @@
-// const axios = require('axios');
-// console.log("Hello TensorFlow");
-
 async function getData() {
   const bldgData = await fetch(
     "https://data.cityofnewyork.us/resource/28fi-3us3.json?largest_property_use_type=Multifamily Housing&$where=starts_with(bbl_10_digits, '1')&$select=dof_gross_floor_area_ft,total_ghg_emissions_metric,address_1_self_reported&$limit=20000"
@@ -35,9 +32,9 @@ function createModel() {
   // Add a single input layer
   model.add(tf.layers.dense({ inputShape: [1], units: 1 }));
 
-  model.add(tf.layers.dense({units: 3}));
-  model.add(tf.layers.dense({units: 3}));
-  // model.add(tf.layers.dense({units: 15, activation: 'sigmoid'}));
+  // model.add(tf.layers.dense({units: 3}));
+  // model.add(tf.layers.dense({units: 3}));
+  model.add(tf.layers.dense({units: 15, activation: 'sigmoid'}));
 
   // // Add an output layer
   model.add(tf.layers.dense({ units: 1 }));
