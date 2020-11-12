@@ -144,6 +144,43 @@ class EmissionsModel extends React.Component {
       }
     );
   }
+  async run() {
+    // Load and plot the original input data that we are going to train on.
+    const data = await this.getData();
+    const values = data.map((d) => ({
+      x: d.squareFootage,
+      y: d.emissions,
+    }));
+
+    tfvis.render.scatterplot(
+      { name: "Square Footage v Emissions" },
+      { values },
+      {
+        xLabel: "Square Footage",
+        yLabel: "Emissions",
+        height: 300,
+        zoomToFit: false
+      }
+    );
+    // More code will be added below
+    // Create the model
+    const model = this.createModel();
+    tfvis.show.modelSummary({ name: "Model Summary" }, model);
+    // Convert the data to a form we can use for training.
+    const tensorData = this.convertToTensor(data);
+    const { inputs, labels } = tensorData;
+
+    // Train the model
+    await this.trainModel(model, inputs, labels);
+    console.log("Done Training");
+
+    // Make some predictions using the model and compare them to the
+  // original data
+    this.testModel(model, data, tensorData);
+  }
+  async componentDidMount() {
+    await this.run()
+  }
   render() {
     return (
     <div>
