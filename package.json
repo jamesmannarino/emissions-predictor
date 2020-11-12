@@ -10,7 +10,7 @@
     "start-dev": "npm run build-client-watch & npm run start-server",
     "start-server": "nodemon server -e html,js,scss --ignore public --ignore client"
   },
-  "author": "",
+  "author": "James Mannarino",
   "license": "ISC",
   "dependencies": {
     "@tensorflow/tfjs": "^2.7.0",

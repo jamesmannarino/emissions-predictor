@@ -9,7 +9,8 @@ class EmissionsModel extends React.Component {
       squareFootage: null,
       emissions: null
     }
-    this.getData = this.getData.bind(this)
+    this.run = this.run.bind(this)
+    this.visualize = this.visualize.bind(this)
   }
   async getData() {
     const bldgData = await fetch(
@@ -46,7 +47,7 @@ class EmissionsModel extends React.Component {
 
     // model.add(tf.layers.dense({units: 3}));
     // model.add(tf.layers.dense({units: 3}));
-    model.add(tf.layers.dense({units: 15, activation: 'sigmoid'}));
+    // model.add(tf.layers.dense({units: 15, activation: 'sigmoid'}));
 
     // // Add an output layer
     model.add(tf.layers.dense({ units: 1 }));
@@ -99,6 +100,7 @@ class EmissionsModel extends React.Component {
 
     const batchSize = 32;
     const epochs = 10;
+    //6300/32 = ~196 batches; 5 * 196 = ~984
 
     return await model.fit(inputs, labels, {
       batchSize,
@@ -107,7 +109,8 @@ class EmissionsModel extends React.Component {
       callbacks: tfvis.show.fitCallbacks(
         { name: "Training Performance" },
         ["loss", "mse"],
-        { height: 200, callbacks: ["onEpochEnd"] }
+        { height: 200, callbacks: ["onEpochEnd"] },
+        // { height: 200, callbacks: ["onBatchEnd"] }
       ),
     });
   }
@@ -144,10 +147,56 @@ class EmissionsModel extends React.Component {
       }
     );
   }
+  async run() {
+    // Load and plot the original input data that we are going to train on.
+    const data = await this.getData();
+    const values = data.map((d) => ({
+      x: d.squareFootage,
+      y: d.emissions,
+    }));
+
+    // More code will be added below
+    // Create the model
+    const model = this.createModel();
+    tfvis.show.modelSummary({ name: "Model Summary" }, model);
+    // Convert the data to a form we can use for training.
+    const tensorData = this.convertToTensor(data);
+    const { inputs, labels } = tensorData;
+
+    // Train the model
+    await this.trainModel(model, inputs, labels);
+    console.log("Done Training");
+
+    // Make some predictions using the model and compare them to the
+  // original data
+    this.testModel(model, data, tensorData);
+  }
+  async visualize() {
+    const data = await this.getData();
+    const values = data.map((d) => ({
+      x: d.squareFootage,
+      y: d.emissions,
+    }));
+    tfvis.render.scatterplot(
+      { name: "Square Footage v Emissions" },
+      { values },
+      {
+        xLabel: "Square Footage",
+        yLabel: "Emissions",
+        height: 300,
+        zoomToFit: false
+      }
+    );
+  }
   render() {
     return (
     <div>
-      {/* {async() => await this.getData()} */}
+      <button onClick={this.visualize}>
+        Visualize Data
+      </button>
+      <button onClick={this.run}>
+        Run Model
+      </button>
     </div>
     )
   }
