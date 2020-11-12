@@ -9,7 +9,8 @@ class EmissionsModel extends React.Component {
       squareFootage: null,
       emissions: null
     }
-    this.getData = this.getData.bind(this)
+    this.run = this.run.bind(this)
+    this.visualize = this.visualize.bind(this)
   }
   async getData() {
     const bldgData = await fetch(
@@ -46,7 +47,7 @@ class EmissionsModel extends React.Component {
 
     // model.add(tf.layers.dense({units: 3}));
     // model.add(tf.layers.dense({units: 3}));
-    model.add(tf.layers.dense({units: 15, activation: 'sigmoid'}));
+    // model.add(tf.layers.dense({units: 15, activation: 'sigmoid'}));
 
     // // Add an output layer
     model.add(tf.layers.dense({ units: 1 }));
@@ -99,6 +100,7 @@ class EmissionsModel extends React.Component {
 
     const batchSize = 32;
     const epochs = 10;
+    //6300/32 = ~196 batches; 5 * 196 = ~984
 
     return await model.fit(inputs, labels, {
       batchSize,
@@ -107,7 +109,8 @@ class EmissionsModel extends React.Component {
       callbacks: tfvis.show.fitCallbacks(
         { name: "Training Performance" },
         ["loss", "mse"],
-        { height: 200, callbacks: ["onEpochEnd"] }
+        { height: 200, callbacks: ["onEpochEnd"] },
+        // { height: 200, callbacks: ["onBatchEnd"] }
       ),
     });
   }
@@ -152,16 +155,6 @@ class EmissionsModel extends React.Component {
       y: d.emissions,
     }));
 
-    tfvis.render.scatterplot(
-      { name: "Square Footage v Emissions" },
-      { values },
-      {
-        xLabel: "Square Footage",
-        yLabel: "Emissions",
-        height: 300,
-        zoomToFit: false
-      }
-    );
     // More code will be added below
     // Create the model
     const model = this.createModel();
@@ -178,13 +171,32 @@ class EmissionsModel extends React.Component {
   // original data
     this.testModel(model, data, tensorData);
   }
-  async componentDidMount() {
-    await this.run()
+  async visualize() {
+    const data = await this.getData();
+    const values = data.map((d) => ({
+      x: d.squareFootage,
+      y: d.emissions,
+    }));
+    tfvis.render.scatterplot(
+      { name: "Square Footage v Emissions" },
+      { values },
+      {
+        xLabel: "Square Footage",
+        yLabel: "Emissions",
+        height: 300,
+        zoomToFit: false
+      }
+    );
   }
   render() {
     return (
     <div>
-      {/* {async() => await this.getData()} */}
+      <button onClick={this.visualize}>
+        Visualize Data
+      </button>
+      <button onClick={this.run}>
+        Run Model
+      </button>
     </div>
     )
   }
