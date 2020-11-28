@@ -4,6 +4,7 @@
   "description": "",
   "main": "script.js",
   "scripts": {
+    "deploy": "script/deploy",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-client-watch": "webpack -w",
     "start": "node server",
