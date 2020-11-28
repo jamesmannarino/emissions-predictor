@@ -250,7 +250,7 @@ class EmissionsModel extends React.Component {
           <button onClick={this.predictEmissions}>Predict Emissions</button>
         </label>
       </form>
-      <p></p>
+    <p>Predicted Emissions: {this.state.predictedEmissions}</p>
     </div>
     )
   }
